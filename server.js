@@ -40,7 +40,7 @@ async function handleEvent(event) {
         "headers":{
         "content-type":"application/octet-stream",
         "x-rapidapi-host":"dark-sky.p.rapidapi.com",
-        "x-rapidapi-key":"08a722dc3dmsh1d74e84cf6177d2p19a98djsn78ba7090b4c2",
+        "x-rapidapi-key": process.env.API_KEY,
         "useQueryString":true
         },"params":{
         "lang":"ja",
