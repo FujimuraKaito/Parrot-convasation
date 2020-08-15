@@ -3,6 +3,7 @@
 const express = require('express');
 const line = require('@line/bot-sdk');
 const PORT = 3000;
+const axios = require('axios')
 
 const config = {
     channelSecret: '1a21fb0095bb1c7c1b84cb47c5bafdf6',
@@ -31,6 +32,25 @@ async function handleEvent(event) {
       return client.replyMessage(event.replyToken, {
         type: 'text',
         text: '画像を送らないで！'
+      })
+    } else if (event.message.type === 'text' && event.message.text === '天気') {
+      const res = await axios({
+        "method":"GET",
+        "url":"https://dark-sky.p.rapidapi.com/%7Blatitude%7D,%7Blongitude%7D",
+        "headers":{
+        "content-type":"application/octet-stream",
+        "x-rapidapi-host":"dark-sky.p.rapidapi.com",
+        "x-rapidapi-key":"08a722dc3dmsh1d74e84cf6177d2p19a98djsn78ba7090b4c2",
+        "useQueryString":true
+        },"params":{
+        "lang":"ja",
+        "units":"auto"
+        }
+      })
+      print(res)
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: res
       })
     } else if (event.message.type === 'text' && event.message.text === 'おすすめコーヒー'){
       return client.replyMessage(event.replyToken, {
