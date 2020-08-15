@@ -23,14 +23,180 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 const client = new line.Client(config);
 
 async function handleEvent(event) {
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    return Promise.resolve(null);
+  try {
+    if (event.type !== 'message') {
+      return Promise.resolve(null);
+    }
+    if (event.message.type === 'image') {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: '画像を送らないで！'
+      })
+    } else if (event.message.type === 'text' && event.message.text === 'おすすめコーヒー'){
+      return client.replyMessage(event.replyToken, {
+        type: 'flex',
+        altText: 'おすすめコーヒー',
+        contents:
+        {
+            "type": "bubble",
+            "hero": {
+              "type": "image",
+              "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png",
+              "size": "full",
+              "aspectRatio": "20:13",
+              "aspectMode": "cover",
+              "action": {
+                "type": "uri",
+                "uri": "http://linecorp.com/"
+              }
+            },
+            "body": {
+              "type": "box",
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "Brown Cafe",
+                  "weight": "bold",
+                  "size": "xl"
+                },
+                {
+                  "type": "box",
+                  "layout": "baseline",
+                  "margin": "md",
+                  "contents": [
+                    {
+                      "type": "icon",
+                      "size": "sm",
+                      "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                    },
+                    {
+                      "type": "icon",
+                      "size": "sm",
+                      "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                    },
+                    {
+                      "type": "icon",
+                      "size": "sm",
+                      "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                    },
+                    {
+                      "type": "icon",
+                      "size": "sm",
+                      "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gold_star_28.png"
+                    },
+                    {
+                      "type": "icon",
+                      "size": "sm",
+                      "url": "https://scdn.line-apps.com/n/channel_devcenter/img/fx/review_gray_star_28.png"
+                    },
+                    {
+                      "type": "text",
+                      "text": "4.0",
+                      "size": "sm",
+                      "color": "#999999",
+                      "margin": "md",
+                      "flex": 0
+                    }
+                  ]
+                },
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "margin": "lg",
+                  "spacing": "sm",
+                  "contents": [
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "spacing": "sm",
+                      "contents": [
+                        {
+                          "type": "text",
+                          "text": "Place",
+                          "color": "#aaaaaa",
+                          "size": "sm",
+                          "flex": 1
+                        },
+                        {
+                          "type": "text",
+                          "text": "Miraina Tower, 4-1-6 Shinjuku, Tokyo",
+                          "wrap": true,
+                          "color": "#666666",
+                          "size": "sm",
+                          "flex": 5
+                        }
+                      ]
+                    },
+                    {
+                      "type": "box",
+                      "layout": "baseline",
+                      "spacing": "sm",
+                      "contents": [
+                        {
+                          "type": "text",
+                          "text": "Time",
+                          "color": "#aaaaaa",
+                          "size": "sm",
+                          "flex": 1
+                        },
+                        {
+                          "type": "text",
+                          "text": "10:00 - 23:00",
+                          "wrap": true,
+                          "color": "#666666",
+                          "size": "sm",
+                          "flex": 5
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "footer": {
+              "type": "box",
+              "layout": "vertical",
+              "spacing": "sm",
+              "contents": [
+                {
+                  "type": "button",
+                  "style": "link",
+                  "height": "sm",
+                  "action": {
+                    "type": "uri",
+                    "label": "CALL",
+                    "uri": "https://linecorp.com"
+                  }
+                },
+                {
+                  "type": "button",
+                  "style": "link",
+                  "height": "sm",
+                  "action": {
+                    "type": "uri",
+                    "label": "WEBSITE",
+                    "uri": "https://linecorp.com"
+                  }
+                },
+                {
+                  "type": "spacer",
+                  "size": "sm"
+                }
+              ],
+              "flex": 0
+            }
+          }
+      })
+    } else {
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: event.message.text //実際に返信の言葉を入れる箇所→ここではオウム返し
+      });
+    }
+  } catch(err) {
+    console.error(err)
   }
-
-  return client.replyMessage(event.replyToken, {
-    type: 'text',
-    text: event.message.text //実際に返信の言葉を入れる箇所
-  });
 }
 
 app.listen(PORT);
