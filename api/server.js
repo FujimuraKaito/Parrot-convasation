@@ -1,5 +1,7 @@
 'use strict';
 
+// import dotenv from 'dotenv';
+require('dotenv').config();
 const express = require('express');
 const line = require('@line/bot-sdk');
 const PORT = 3000;
@@ -23,6 +25,43 @@ app.post('/webhook', line.middleware(config), (req, res) => {
 
 const client = new line.Client(config);
 
+// nodeのversionを取ってくる
+const getNodeVer = async(userId) => {
+  const res = await axios.get('https://nodejs.org/ja/');
+  const item = res.data;
+  const version = item.match(/最新版"  data-version="(.*?)">/)[1];
+  await client.pushMessage(userId, {
+    type: 'text',
+    text: `今の最新は${version}だよ`
+  });
+}
+
+// async function getweather(userId) {
+//   const res = await axios.get('http://abehiroshi.la.coocan.jp/');
+//   const item = res.data;
+//   let str = '';
+//   for (let i = 0; i < item.length; i++) {
+//     str = str + item[i];
+//   }
+//   await client.pushMessage(userId, {
+//     type: 'text',
+//     text: `取ってきた値${str}`
+//   });
+// }
+
+const getWeather = async(userId) => {
+  const res = await axios.get('http://abehiroshi.la.coocan.jp/');
+  const item = res.data;
+  let str = '';
+  for (let i = 0; i < item.length; i++) {
+    str = str + item[i];
+  }
+  await client.pushMessage(userId, {
+    type: 'text',
+    text: `取ってきた値${str}`
+  });
+}
+
 async function handleEvent(event) {
   try {
     if (event.type !== 'message') {
@@ -33,25 +72,65 @@ async function handleEvent(event) {
         type: 'text',
         text: '画像を送らないで！'
       })
-    } else if (event.message.type === 'text' && event.message.text === '天気') {
-      const res = await axios({
-        "method":"GET",
-        "url":"https://dark-sky.p.rapidapi.com/%7Blatitude%7D,%7Blongitude%7D",
-        "headers":{
-        "content-type":"application/octet-stream",
-        "x-rapidapi-host":"dark-sky.p.rapidapi.com",
-        "x-rapidapi-key": process.env.API_KEY,
-        "useQueryString":true
-        },"params":{
-        "lang":"ja",
-        "units":"auto"
-        }
-      })
-      print(res)
+    } else if (event.message.type === 'text' && event.message.text === 'node'){
+      let mes = 'ちょっと待ってね';
+      getNodeVer(event.source.userId);
       return client.replyMessage(event.replyToken, {
         type: 'text',
-        text: res
-      })
+        text: mes
+      });
+    } else if (event.message.type === 'text' && event.message.text === '天気') {
+      let mes = 'ちょっと待ってよ';
+      getWeather(event.source.userId);
+      // getweather(event.source.userId);
+      return client.replyMessage(event.replyToken, {
+        type: 'text',
+        text: mes
+      });
+      // try {
+      //   const res = await axios.get('https://www.google.com/');
+      //   const json = res.data;
+      //   return client.replyMessage(event.replyToken, {
+      //         type: 'text',
+      //         text: json
+      //       })
+      // } catch(err) {
+      //   console.log(err)
+      // }
+      // axios({
+      //   "method":"GET",
+      //   "url":"https://dark-sky.p.rapidapi.com/%7Blatitude%7D,%7Blongitude%7D",
+      //   "headers":{
+      //   "content-type":"application/octet-stream",
+      //   "x-rapidapi-host":"dark-sky.p.rapidapi.com",
+      //   "x-rapidapi-key": "",
+      //   "useQueryString":true
+      //   },"params":{
+      //   "lang":"ja",
+      //   "units":"auto"
+      //   }
+      // })
+      // axios({
+      //   "method":"GET",
+      //   "url":"https://community-open-weather-map.p.rapidapi.com/weather",
+      //   "headers":{
+      //   "content-type":"application/octet-stream",
+      //   "x-rapidapi-host":"community-open-weather-map.p.rapidapi.com",
+      //   "x-rapidapi-key":"",
+      //   "useQueryString":true
+      //   },"params":{
+      //   "q":"London%2Cuk",
+      //   }
+      // })
+      // .then((res) => {
+      //   return client.replyMessage(event.replyToken, {
+      //     type: 'text',
+      //     text: res
+      //   })
+      // })
+      // .catch((err) => {
+      //   console.log(err)
+      // })
     } else if (event.message.type === 'text' && event.message.text === 'おすすめコーヒー'){
       return client.replyMessage(event.replyToken, {
         type: 'flex',
@@ -219,5 +298,8 @@ async function handleEvent(event) {
   }
 }
 
-app.listen(PORT);
+// app.listen(PORT);
+// console.log(`Server running at ${PORT}`);
+(process.env.NOW_REGION) ? module.exports = app : app.listen(PORT);
 console.log(`Server running at ${PORT}`);
+
